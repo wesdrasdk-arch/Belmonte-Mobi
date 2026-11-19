@@ -1,0 +1,174 @@
+{
+  "app_name": "Belmonte Mobi",
+  "personality": "1 iOS-Native Clean (adapted with regional blue-and-white mobility tone)",
+  "personality_one_liner": "Transporte, Turismo e Entregas na palma da sua mão — professional, intuitive, and designed for all ages in Belmonte, Bahia.",
+  "color": {
+    "surface": "#F8FAFC",
+    "onSurface": "#0F172A",
+    "surfaceSecondary": "#FFFFFF",
+    "onSurfaceSecondary": "#1E293B",
+    "surfaceTertiary": "#F1F5F9",
+    "onSurfaceTertiary": "#475569",
+    "surfaceInverse": "#0F172A",
+    "onSurfaceInverse": "#F8FAFC",
+    "brand": "#0284C7",
+    "brandPrimary": "#0284C7",
+    "onBrandPrimary": "#FFFFFF",
+    "brandSecondary": "#0369A1",
+    "onBrandSecondary": "#FFFFFF",
+    "brandTertiary": "#E0F2FE",
+    "onBrandTertiary": "#0369A1",
+    "success": "#10B981",
+    "onSuccess": "#FFFFFF",
+    "warning": "#F59E0B",
+    "onWarning": "#FFFFFF",
+    "error": "#EF4444",
+    "onError": "#FFFFFF",
+    "info": "#0284C7",
+    "onInfo": "#FFFFFF",
+    "border": "#E2E8F0",
+    "borderStrong": "#CBD5E1",
+    "divider": "#F1F5F9",
+    "muted": "#64748B",
+    "onBrand": "#FFFFFF"
+  },
+  "typography": {
+    "displayFontFamily": "Plus Jakarta Sans",
+    "textFontFamily": "Geist",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous vertical padding, comfortable touch targets, crystal-clear grouping for regional users with varying digital experience.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": "1",
+  "navigation": "bottom_tabs",
+  "icon_set": "Ionicons",
+  "glassmorphism": {
+    "enabled": "true",
+    "do's": [
+      "Use frosted glass on floating headers and sticky ride-status banners",
+      "Apply subtle backdrop blur on bottom action sheets"
+    ],
+    "dont's": [
+      "Do not blur dense form fields or body text regions"
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "HomeClient",
+      "purpose": "Main client dashboard featuring regional service grid (Transporte, Turismo, Encomendas, Viagens, Agendar), active ride tracker banner, and quick WhatsApp support.",
+      "states": {
+        "loading": "Centered blue spinner with Belmonte Mobi logo",
+        "empty": "Clean promotional banner with start booking CTA",
+        "error": "Friendly alert banner with retry button"
+      },
+      "layout": "Header with current location badge in Belmonte BA, live status pill, service grid in 2 columns, recent destinations list, sticky WhatsApp button and bottom navigation."
+    },
+    {
+      "name": "RideBooking",
+      "purpose": "Request passenger transport or private travel with real-time price estimation, vehicle class selector, and driver matching.",
+      "states": {
+        "loading": "Searching nearby drivers radar animation",
+        "empty": "No drivers available in immediate radius, expand search",
+        "error": "Failed to calculate route or connect to server"
+      },
+      "layout": "Interactive map view on top half, bottom sheet with pickup/dropoff inputs, vehicle category cards, price estimate, and sticky confirm button."
+    },
+    {
+      "name": "LiveTracking",
+      "purpose": "Real-time trip status tracking across 6 milestones (Procurando motorista -> Encontrado -> A caminho -> Chegou -> Em andamento -> Concluída).",
+      "states": {
+        "loading": "Loading active trip telemetry",
+        "empty": "No active trip found",
+        "error": "GPS signal lost, attempting reconnection"
+      },
+      "layout": "Full screen map with driver route, floating status card with driver details (photo, vehicle, rating), call/chat actions, and cancel/complete buttons."
+    },
+    {
+      "name": "TourismCatalog",
+      "purpose": "Discover and book regional tours, boat trips on Jequitinhonha river, and historical sightseeing in Belmonte.",
+      "states": {
+        "loading": "Tour skeleton loader cards",
+        "empty": "No tours listed for this season",
+        "error": "Failed to load tourism packages"
+      },
+      "layout": "Category filter chips, horizontal featured carousel, vertical list of tour cards with imagery, price, duration, and instant booking modal."
+    },
+    {
+      "name": "ParcelDelivery",
+      "purpose": "Send packages and small freights with tracking code generation and recipient details.",
+      "states": {
+        "loading": "Generating tracking code...",
+        "empty": "No active deliveries in history",
+        "error": "Could not submit delivery request"
+      },
+      "layout": "Sender & receiver address form, package size selector, estimated weight, photo upload, and instant tracking status viewer."
+    },
+    {
+      "name": "DriverPanel",
+      "purpose": "Driver operational hub with online/offline toggle, incoming service requests queue, earnings summary, and job management.",
+      "states": {
+        "loading": "Syncing driver telemetry",
+        "empty": "You are offline. Turn on to receive regional requests.",
+        "error": "Network error while updating status"
+      },
+      "layout": "Top online/offline switch banner, today's earnings card, incoming request alert modal with countdown timer, active job card with navigation links."
+    },
+    {
+      "name": "AdminDashboard",
+      "purpose": "Comprehensive administration panel for monitoring regional metrics, approving drivers, managing pricing, commissions, and users.",
+      "states": {
+        "loading": "Loading admin metrics...",
+        "empty": "No pending approvals or active logs",
+        "error": "Failed to fetch admin data"
+      },
+      "layout": "Tabbed management interface (Dashboard metrics, Drivers pending verification, Pricing & Commission config, User management, Reports)."
+    }
+  ],
+  "images": {
+    "belmonte_hero": {
+      "url": "https://images.unsplash.com/photo-1682152572654-6c0ec46f4aa4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHx0cm9waWNhbCUyMGJlYWNoJTIwcGFsbSUyMHRyZWUlMjBicmF6aWwlMjBjb2FzdGxpbmUlMjBibHVlJTIwd2F0ZXJ8ZW58MHx8fHwxNzk0NzY2NzEyfDA&ixlib=rb-4.1.0&q=85",
+      "dark": "https://images.unsplash.com/photo-1682152572654-6c0ec46f4aa4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHx0cm9waWNhbCUyMGJlYWNoJTIwcGFsbSUyMHRyZWUlMjBicmF6aWwlMjBjb2FzdGxpbmUlMjBibHVlJTIwd2F0ZXJ8ZW58MHx8fHwxNzk0NzY2NzEyfDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Belmonte Bahia coastal landscape with palm trees and blue ocean"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Design specifically for Belmonte Mobi - regional transport, tourism, and delivery platform for Belmonte, Bahia, Brazil.",
+    "Strictly follow the user's choice of blue-and-white visual identity with discreet accents.",
+    "Keep interfaces simple, fast, professional, and extremely accessible for users with varying digital experience.",
+    "Implement all three user profiles: CLIENTE, MOTORISTA, and ADMINISTRADOR with clear switching or dedicated tabs.",
+    "Include real-time ride tracking with 6 distinct status milestones, parcel tracking by code, tourism catalog, and WhatsApp support button.",
+    "Ensure touch targets are >= 44x44pt and enforce the sticky primary CTA pattern on booking and form screens."
+  ]
+}

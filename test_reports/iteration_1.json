@@ -1,0 +1,57 @@
+{
+  "summary": "First full test of BELMONTE MOBI. Backend: 19 pytest cases, 15 pass / 4 fail (all 4 are real defects). MAIN E2E flow PASSES end-to-end in UI (390x844): client register -> transporte with Nominatim autocomplete + estimate -> SOLICITAR -> driver login/online toggle/sees request -> ACEITAR -> INICIAR SERVIÇO/CHEGUEI/INICIAR VIAGEM/FINALIZAR -> client tracking polls every 5s (verified live: searching->accepted->heading) -> 4-star rating (driver 14->15 ratings) -> payment+commission (10% transporte, 12% encomenda) recorded -> admin dashboard/corridas/relatórios show it. Also passed: delivery create/track/deliver with wrong(400)/correct(200) code, viagem + à disposição (hours) ride creation, tourism chips/detail/date/time/people stepper -> 'Reserva confirmada' card, admin Preços save persists and changes estimate, admin create package, clientes search + block (login -> 403), role protection (client/driver -> 403 on /api/admin/*), cancellation fee after accept, pending driver UI card + online 403. Bugs found: pending (unapproved) driver CAN accept rides/deliveries via API; delivery_code leaked on public tracking + to driver; driver can accept multiple concurrent jobs at API level; encomenda price ignores distance (always 0 km); viagem ida/volta not priced; quick-route chips don't set origin. No deprecated Expo packages detected (no expo-av/expo-barcode-scanner/expo-background-fetch). SafeAreaView comes from react-native-safe-area-context (OK).",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "POST /api/driver/rides/{id}/accept (+heading/arrive/start/complete, /api/driver/deliveries/*)", "issue": "auth.get_approved_driver (auth.py:148) only rejects 'blocked'; a PENDING/REJECTED driver gets 200 when accepting a ride (reproduced: test_unapproved_driver_cannot_accept). Must raise 403 when status != 'approved'.", "priority": "CRITICAL"},
+      {"endpoint": "GET /api/deliveries/track/{code}", "issue": "Public (unauthenticated) tracking returns the 4-digit delivery_code, so anyone with the tracking code can confirm delivery. Clear pub.delivery_code in track_delivery (routers_services.py:309-317).", "priority": "HIGH"},
+      {"endpoint": "GET /api/driver/available, GET /api/driver/jobs", "issue": "delivery_public() returns delivery_code to the driver, defeating the recipient confirmation code. Strip delivery_code for driver-facing responses.", "priority": "HIGH"},
+      {"endpoint": "POST /api/estimate + POST /api/deliveries (encomenda)", "issue": "build_estimate (routers_services.py:122) only routes for transporte/viagem, so encomenda always gets distance_km=0 and delivery_per_km is never applied (Belmonte->Porto Seguro 74km delivery = R$8,80).", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "POST /api/driver/rides/{id}/accept", "issue": "No server-side check for driver already having an active ride/delivery; driver accepted 2 rides simultaneously via API (UI disables button, but API must enforce)."},
+      {"endpoint": "POST /api/estimate, POST /api/rides (viagem)", "issue": "round_trip (ida e volta) has no effect on price; EstimateIn has no round_trip field and compute_price ignores it. Same price R$180,56 one-way vs round trip."},
+      {"endpoint": "POST /api/rides/{id}/cancel", "issue": "Cancellation fee is recorded as payment with 100% commission and is counted in admin 'Faturamento total'; driver gets 0. Confirm business rule."},
+      {"endpoint": "POST /api/admin/users/{id}/block (unblock)", "issue": "Unblocking a previously APPROVED driver resets status to 'pending' (requires re-approval). Confirm intended."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "trips/new quick route chips", "issue": "Chip 'Belmonte → Porto Seguro' only fills destination (pickDestination); origin stays empty and estimate shows 'Preencha os dados'. Should also set origin to Belmonte.", "testID": "trip-quick-porto-seguro", "priority": "MEDIUM"},
+      {"component": "trips/new Ida e volta", "issue": "Selecting 'Ida e volta' does not change estimate (backend ignores round_trip).", "testID": "trip-round-ida-volta", "priority": "MEDIUM"},
+      {"component": "deliveries/new estimate", "issue": "Estimate shows '0 km' for any route (backend bug).", "testID": "delivery-estimate-price", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Tourism images", "issues": ["'Centro Histórico de Belmonte' uses a Rio de Janeiro (Pão de Açúcar) photo; 'Passeio de Escuna no Rio Jequitinhonha' uses an alpine lake/mountain photo - not relevant to Belmonte-BA. Replace with coastal/Bahia imagery."]},
+      {"screen": "driver/index", "issues": ["driver-online-switch is 40x20px (touch target < 44px); make the whole online card pressable", "RECUSAR only hides request in local state (lost on reload)"]},
+      {"screen": "trips/new", "issues": ["Quick chips height 36px (<44px touch target)"]},
+      {"screen": "transport/[id] cancel confirm", "issues": ["Cancel dialog says 'Pode haver taxa' but doesn't show the fee amount (R$10) when driver already accepted"]},
+      {"screen": "AddressInput", "issues": ["Specific street query ('Rua Doutor Gileno Amado Belmonte') returned 0 options; only generic 'Belmonte Bahia' worked - consider bounded/viewbox Nominatim search or fallback message"]}
+    ],
+    "react_native_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_belmonte_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "auth.get_approved_driver: raise 403 unless ddoc.status == 'approved' (fixes pending driver accepting/advancing rides & deliveries)",
+    "Hide delivery_code in /api/deliveries/track/{code} and in driver-facing delivery responses (/driver/available, /driver/jobs, accept/collect/transit)",
+    "build_estimate: compute route for 'encomenda' too so delivery_per_km applies",
+    "Support round_trip in EstimateIn/compute_price (e.g. x2 or configurable) and pass it from create_ride",
+    "accept_ride/accept_delivery: reject (409) if driver already has an active ride or delivery",
+    "trips/new quick chips: also set origin to Belmonte",
+    "Replace irrelevant tourism photos (Rio de Janeiro / alpine lake)"
+  ],
+  "critical_code_review_comments": [
+    "routers_services.py:371 'if vset and vset' duplicated condition",
+    "src/components/admin.tsx:260 settings save uses parseFloat(...) || 0 - empty field silently saves 0 price",
+    "Driver profile update accepts raw dict body (routers_services.py:351) instead of the existing DriverProfileUpdate Pydantic model",
+    "deliver_delivery takes raw dict instead of DeliverIn model",
+    "backend .env var used by frontend is EXPO_PUBLIC_BACKEND_URL (not EXPO_BACKEND_URL) - tests read it into EXPO_BACKEND_URL"
+  ],
+  "updated_files": ["/app/backend/tests/test_belmonte_api.py (new)"],
+  "success_rate": {"backend": "79% (15/19)", "frontend": "~90% (all main flows work; pricing/chip bugs)"},
+  "seed_data_creation": "Created TEST users: test_cli_22790@test.com (client, now BLOCKED by admin UI test), test_pend_35950@test.com (pending driver), TEST_drv_*@test.com (driver approved then blocked). Created rides BM-T-00012..00019 (most cancelled; BM-T-00018 completed+rated 4 stars on demo driver Carlos -> demo driver rating changed 4.83->4.77), deliveries BM-E-00004..00008, bookings incl. BM-S-00003. Several R$10 cancellation-fee payments were recorded for cliente@demo.com. TEST package deleted; price_per_km restored to 2.5. Demo driver left ONLINE.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run: cd /app/backend && export EXPO_BACKEND_URL=$(grep EXPO_PUBLIC_BACKEND_URL /app/frontend/.env | cut -d= -f2) && python -m pytest tests/test_belmonte_api.py -n 0 (pytest.ini adds xdist; tests are order-dependent so use -n 0). Ratings service_type is 'ride'/'delivery'/'booking'. Tourism routes under /api/tourism/*. AddressInput option testID: <input>-option-<lat>; query 'Belmonte Bahia' / 'Porto Seguro Bahia' reliably return options.",
+  "rca_of_issue": "Pending driver accept: get_approved_driver name implies approval check but only checks 'blocked'; set_online does its own status check, so only /driver/online is protected. Delivery 0 km: is_route_service = service_type in ('transporte','viagem') excludes 'encomenda'."
+}

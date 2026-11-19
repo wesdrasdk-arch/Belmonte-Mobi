@@ -1,27 +1,43 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "BELMONTE MOBI",
+    "slug": "belmonte-mobi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
-    "userInterfaceStyle": "automatic",
+    "scheme": "belmontemobi",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.emergent.mobibelmonte.dzoo6d"
+      "bundleIdentifier": "com.emergent.mobibelmonte.dzoo6d",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Encontrar motoristas e corridas perto de você",
+        "NSPhotoLibraryUsageDescription": "Anexar fotos de encomendas e documentos"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#0369A1"
       },
-      "package": "com.emergent.mobibelmonte.dzoo6d"
+      "package": "com.emergent.mobibelmonte.dzoo6d",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "READ_MEDIA_IMAGES"
+      ]
     },
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "BELMONTE MOBI",
+      "shortName": "BelmonteMobi",
+      "description": "Transporte, Turismo e Entregas na palma da sua mão.",
+      "themeColor": "#0284C7",
+      "backgroundColor": "#F8FAFC",
+      "display": "standalone",
+      "lang": "pt-BR"
     },
     "plugins": [
       "expo-router",
@@ -31,14 +47,16 @@
           "image": "./assets/images/splash-image.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#000000"
+          "backgroundColor": "#0369A1"
         }
       ],
       "expo-font",
       "expo-image",
       "expo-secure-store",
       "expo-web-browser",
-      "expo-status-bar"
+      "expo-status-bar",
+      "@react-native-vector-icons/ionicons",
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true
